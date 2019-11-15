@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lxr.mapper.BookMapper">
+
+    <select id="getBookList" parameterType="BookList" resultType="BookList">
+        select * from booklist
+        <where>
+            <if test="bookname != null and bookname != ''">
+                and bookname like '%${bookname}%'
+            </if>
+            <if test="author != null and author != ''">
+                and author like '%${author}%'
+            </if>
+            <if test="state != null and state != ''">
+                and state like '%${state}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="bookView" parameterType="integer" resultType="BookList">
+        select * from booklist where bookid=#{bookid}
+    </select>
+
+    <select id="bookUpdateList" parameterType="integer" resultType="BookList">
+        select * from booklist where bookid=#{bookid}
+    </select>
+
+    <update id="bookUpdate" parameterType="BookList">
+        update booklist set bookname=#{bookname},author=#{author},count=#{count},price=#{price},press=#{press},state=#{state} where bookid=#{bookid}
+    </update>
+
+    <insert id="insertBook" parameterType="string">
+        <selectKey keyColumn="bookid" keyProperty="bookid" order="AFTER" resultType="int">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into booklist(bookid,bookname,author,count,price,press,state)
+        values (#{bookid},#{bookname},#{author},#{count},#{price},#{press},#{state})
+    </insert>
+
+    <delete id="delBook" parameterType="integer">
+        delete from booklist where bookid=#{bookid}
+    </delete>
+    
+    <resultMap id="borrowMap" type="BookList">
+
+    </resultMap>
+
+    <select id="borrow" resultMap="borrowMap">
+        select b.`bookname`,b.`count`,b.`state`,bo.`book_id`,bo.`user_id`,u.`id`,u.`username`,u.`jurisdiction`,u.`useraccount`
+        from booklist as b left join borrow as bo on bo.`book_id`=b.`bookid` left join user_table as u on u.`id`=bo.`user_id`
+    </select>
+
+</mapper>
